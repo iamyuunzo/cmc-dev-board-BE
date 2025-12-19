@@ -1,0 +1,61 @@
+Table users {
+ id bigint [pk]
+ email varchar
+ password varchar
+ role varchar
+ created_at datetime 
+}
+
+Table posts {
+  id bigint [pk]
+  user_id bigint
+  title varchar
+  content text
+  created_at datetime
+}
+
+Ref: posts.user_id > users.id
+
+Table comments {
+  id bigint [pk]
+  post_id bigint
+  user_id bigint
+  parent_comment_id bigint [null]
+  content text
+  created_at datetime
+}
+
+Ref: comments.post_id > posts.id
+Ref: comments.user_id > users.id
+Ref: comments.parent_comment_id > comments.id
+
+Table bookmarks {
+  id bigint [pk]
+  user_id bigint
+  post_id bigint
+  created_at datetime
+
+  Indexes {
+    (user_id, post_id) [unique]
+  }
+}
+
+Ref: bookmarks.user_id > users.id
+Ref: bookmarks.post_id > posts.id
+
+Table categories {
+  id bigint [pk]
+  name varchar
+}
+
+Table post_categories {
+  post_id bigint
+  category_id bigint
+
+  Indexes {
+    (post_id, category_id) [unique]
+  }
+}
+
+Ref: post_categories.post_id > posts.id
+Ref: post_categories.category_id > categories.id
