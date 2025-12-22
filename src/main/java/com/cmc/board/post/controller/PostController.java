@@ -1,5 +1,6 @@
 package com.cmc.board.post.controller;
 
+import com.cmc.board.post.controller.dto.CreatePostRequest;
 import com.cmc.board.post.domain.Post;
 import com.cmc.board.post.service.PostService;
 import com.cmc.board.user.domain.User;
