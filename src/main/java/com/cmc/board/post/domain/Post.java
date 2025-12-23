@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * 게시글 엔티티
+ */
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -14,47 +17,42 @@ public class Post {
     private Long id;
 
     /**
-     * 게시글 작성자
+     * 작성자 (User)
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    /**
-     * 게시글 제목
-     */
     @Column(nullable = false)
     private String title;
 
-    /**
-     * 게시글 내용
-     */
     @Lob
     @Column(nullable = false)
     private String content;
 
-    /**
-     * 생성 시간
-     */
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // JPA 기본 생성자
     protected Post() {
+        // JPA 기본 생성자
     }
 
     /**
-     * 게시글 생성자
-     *
-     * @param author  작성자
-     * @param title   제목
-     * @param content 내용
+     * 게시글 생성용 생성자
      */
     public Post(User author, String title, String content) {
         this.author = author;
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
+    }
+
+    // ===== 비즈니스 메서드 =====
+
+    public void validateAuthor(Long loginUserId) {
+        if (!this.author.getId().equals(loginUserId)) {
+            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+        }
     }
 
     // ===== Getter =====
@@ -77,13 +75,5 @@ public class Post {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    /**
-     * 게시글 수정
-     */
-    public void update(String title, String content) {
-        this.title = title;
-        this.content = content;
     }
 }
