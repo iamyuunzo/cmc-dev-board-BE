@@ -1,5 +1,6 @@
 package com.cmc.board.post.domain;
 
+import com.cmc.board.global.error.ForbiddenException;
 import com.cmc.board.user.domain.User;
 import jakarta.persistence.*;
 
@@ -16,9 +17,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * 작성자 (User)
-     */
+    // 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
@@ -33,47 +32,36 @@ public class Post {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    protected Post() {
-        // JPA 기본 생성자
-    }
+    protected Post() {}
 
-    /**
-     * 게시글 생성용 생성자
-     */
-    public Post(User author, String title, String content) {
+    private Post(User author, String title, String content) {
         this.author = author;
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
     }
 
-    // ===== 비즈니스 메서드 =====
+    /**
+     * 🔥 정적 팩토리 메서드
+     * - 생성 의도를 명확히 드러냄
+     */
+    public static Post create(User author, String title, String content) {
+        return new Post(author, title, content);
+    }
 
+    /**
+     * 작성자 검증 (도메인 규칙)
+     */
     public void validateAuthor(Long loginUserId) {
-        if (!this.author.getId().equals(loginUserId)) {
-            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+        if (!author.getId().equals(loginUserId)) {
+            throw new ForbiddenException("작성자만 수정/삭제할 수 있습니다.");
         }
     }
 
-    // ===== Getter =====
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    // Getter
+    public Long getId() { return id; }
+    public User getAuthor() { return author; }
+    public String getTitle() { return title; }
+    public String getContent() { return content; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

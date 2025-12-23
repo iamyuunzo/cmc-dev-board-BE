@@ -26,28 +26,18 @@ public class PostService {
         User user = userRepository.findById(loginUserId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
-        Post post = new Post(user, title, content);
+        Post post = Post.create(user, title, content);
         return postRepository.save(post);
-    }
-
-    /**
-     * 게시글 단건 조회
-     */
-    @Transactional(readOnly = true)
-    public Post findById(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
     }
 
     /**
      * 게시글 삭제 (작성자 검증)
      */
     public void delete(Long postId, Long loginUserId) {
-        Post post = findById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
 
-        // 🔥 작성자 검증
         post.validateAuthor(loginUserId);
-
         postRepository.delete(post);
     }
 }
