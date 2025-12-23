@@ -1,13 +1,11 @@
 package com.cmc.board.post.controller;
 
+import com.cmc.board.global.common.SessionConst;
 import com.cmc.board.post.controller.dto.CreatePostRequest;
 import com.cmc.board.post.domain.Post;
 import com.cmc.board.post.service.PostService;
-import com.cmc.board.user.domain.User;
-import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/posts")
@@ -19,32 +17,41 @@ public class PostController {
         this.postService = postService;
     }
 
+    /**
+     * 게시글 생성 (로그인 필수)
+     */
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody CreatePostRequest request) {
+    public Post create(@RequestBody CreatePostRequest request,
+                       HttpSession session) {
 
-        User author = getTemporaryUserForTest();
+        Long loginUserId = (Long) session.getAttribute(SessionConst.LOGIN_USER_ID);
+        if (loginUserId == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
 
-        Post post = postService.create(
-                author,
-                request.getTitle(),
-                request.getContent()
-        );
-
-        return ResponseEntity.ok(post);
+        return postService.create(loginUserId, request.getTitle(), request.getContent());
     }
 
     /**
-     * 임시 사용자 반환 메서드
-     *
-     * - Step 3~5 단계에서 테스트를 위해 사용
-     * - 추후 세션/인증 로직으로 대체 예정
+     * 게시글 단건 조회
      */
-    private User getTemporaryUserForTest() {
-        return new User(
-                "test@test.com",
-                "password",
-                "USER",
-                LocalDateTime.now()
-        );
+    @GetMapping("/{postId}")
+    public Post findOne(@PathVariable Long postId) {
+        return postService.findById(postId);
+    }
+
+    /**
+     * 게시글 삭제 (작성자만 가능)
+     */
+    @DeleteMapping("/{postId}")
+    public void delete(@PathVariable Long postId,
+                       HttpSession session) {
+
+        Long loginUserId = (Long) session.getAttribute(SessionConst.LOGIN_USER_ID);
+        if (loginUserId == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+
+        postService.delete(postId, loginUserId);
     }
 }

@@ -3,6 +3,7 @@ package com.cmc.board.post.service;
 import com.cmc.board.post.domain.Post;
 import com.cmc.board.post.repository.PostRepository;
 import com.cmc.board.user.domain.User;
+import com.cmc.board.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,24 +12,42 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    // 생성자 주입 (의존성 최소화)
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     /**
      * 게시글 생성
-     *
-     * @param author  이미 존재하는 사용자
-     * @param title   게시글 제목
-     * @param content 게시글 내용
-     * @return 저장된 게시글
      */
-    public Post create(User author, String title, String content) {
+    public Post create(Long loginUserId, String title, String content) {
+        User user = userRepository.findById(loginUserId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
-        Post post = new Post(author, title, content);
-
+        Post post = new Post(user, title, content);
         return postRepository.save(post);
+    }
+
+    /**
+     * 게시글 단건 조회
+     */
+    @Transactional(readOnly = true)
+    public Post findById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+    }
+
+    /**
+     * 게시글 삭제 (작성자 검증)
+     */
+    public void delete(Long postId, Long loginUserId) {
+        Post post = findById(postId);
+
+        // 🔥 작성자 검증
+        post.validateAuthor(loginUserId);
+
+        postRepository.delete(post);
     }
 }

@@ -37,7 +37,7 @@ class PostServiceTest {
         String content = "테스트 게시글 내용";
 
         // ===== When =====
-        Post post = postService.create(user, title, content);
+        Post post = postService.create(user.getId(), title, content);
 
         // ===== Then =====
         assertThat(post.getId()).isNotNull();
