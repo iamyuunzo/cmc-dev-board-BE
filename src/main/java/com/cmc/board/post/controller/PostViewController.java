@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
@@ -33,4 +34,16 @@ public class PostViewController {
         model.addAttribute("post", post);
         return "post/detail";
     }
+
+    @GetMapping("/new")
+    public String createForm() {
+        return "post/create";
+    }
+
+    @PostMapping
+    public String create() {
+        // 🔥 지금은 실제 저장 안 함 (임시)
+        return "redirect:/posts";
+    }
+
 }
