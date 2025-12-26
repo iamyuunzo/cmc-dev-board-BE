@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;
@@ -35,7 +35,7 @@ public class PostController {
     /**
      * 게시글 단건 조회
      */
-    @GetMapping("/{postId}")
+    @GetMapping("/{id}")
     public Post findOne(@PathVariable Long postId) {
         return postService.findById(postId);
     }
@@ -43,7 +43,7 @@ public class PostController {
     /**
      * 게시글 삭제 (작성자만 가능)
      */
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long postId,
                        HttpSession session) {
 
