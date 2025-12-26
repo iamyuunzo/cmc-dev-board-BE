@@ -1,0 +1,27 @@
+{
+  "name": "cmc-dev-board-be",
+  "version": "1.0.0",
+  "description": "CMC 1기 개발 파트 1주차 개인 과제로  \r Spring Boot 기반 게시판 서비스 백엔드를 구현하고,  \r 테스트 및 AI 코드리뷰를 통해 코드 품질을 개선한 프로젝트입니다.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamyuunzo/cmc-dev-board-BE.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iamyuunzo/cmc-dev-board-BE/issues"
+  },
+  "homepage": "https://github.com/iamyuunzo/cmc-dev-board-BE#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}
