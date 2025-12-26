@@ -1,134 +1,138 @@
-# CMC BUG 1st Dev – 게시판 서비스 Backend
+# CMC BUG 1st Dev – 게시판 서비스 Frontend & E2E
 
-CMC 1기 개발 파트 1주차 개인 과제로  
-Spring Boot 기반 게시판 서비스 백엔드를 구현하고,  
-테스트 및 AI 코드리뷰를 통해 코드 품질을 개선한 프로젝트입니다.
+CMC 1기 개발 파트 2주차 개인 과제로  
+Spring Boot + Thymeleaf 기반 게시판 프론트엔드 화면을 구현하고,  
+Playwright를 활용한 E2E 테스트를 통해 사용자 흐름을 검증한 프로젝트입니다.
 
 ---
 
 ## 🧭 프로젝트 목표
 
-- 단순 기능 구현이 아닌 **설계 → 구현 → 테스트 → 개선**의 개발 흐름 경험
-- ERD 기반 도메인 설계 역량 강화
-- JUnit + JaCoCo를 활용한 테스트 코드 작성
-- AI 코드리뷰를 통한 설계/아키텍처 개선 경험
+- SSR 기반 웹 페이지 개발 흐름(HTML → CSS → 테스트) 경험
+- Thymeleaf를 활용한 서버 사이드 렌더링 구조 이해
+- Bootstrap CSS 프레임워크를 활용한 기본 UI 구성
+- Playwright E2E 테스트를 통해 사용자 관점의 동작 검증
+- AI 도구를 활용하되, 작성한 코드와 테스트를 직접 이해하는 것에 집중
 
 ---
 
 ## 🛠 기술 스택
 
 - **Language**: Java 17  
-- **Framework**: Spring Boot  
-- **Build Tool**: Gradle  
-- **Database**: H2 (In-memory)  
-- **ORM**: Spring Data JPA  
-- **Test**: JUnit 5  
-- **Coverage**: JaCoCo  
+- **Framework**: Spring Boot, Thymeleaf  
+- **CSS Framework**: Bootstrap  
+- **E2E Test**: Playwright  
+- **Build Tool**: Gradle / npm  
 
 ---
 
-## 📁 패키지 구조
+## 🖥 구현한 화면 목록 (SSR 기반)
 
+> 본 프로젝트의 프론트엔드는  
+> CSR(fetch/axios API 호출) 방식이 아닌 **SSR(Server Side Rendering)** 방식으로 구현되었습니다.
+
+### 📄 게시글 목록
+- URL: `GET /posts`
+- 기능
+  - 게시글 목록 렌더링
+  - 게시글 클릭 시 상세 페이지 이동
+  - 게시글 작성 페이지 이동 버튼 제공
+
+### 📄 게시글 상세
+- URL: `GET /posts/{id}`
+- 기능
+  - 게시글 제목 / 내용 출력
+  - 목록으로 이동 버튼 제공
+
+### 📄 게시글 작성
+- URL: `GET /posts/new`
+- 폼 제출: `POST /posts`
+- 기능
+  - 제목 / 내용 입력 폼 제공
+  - 제출 시 게시글 목록 페이지로 redirect
+  - 화면 흐름 구현을 우선하여 실제 저장 로직은 제외
+
+---
+
+## 🎨 CSS 프레임워크 적용 (Bootstrap)
+
+Bootstrap CSS 프레임워크를 활용하여  
+기본 UI 컴포넌트를 빠르게 구성했습니다.
+
+### 사용한 주요 컴포넌트
+- 버튼: `btn`, `btn-primary`, `btn-secondary`, `btn-outline-secondary`
+- 폼: `form-control`, `textarea`
+- 레이아웃: `container`, `py-4`, `mb-3`, `d-flex`
+- 테이블: `table`, `table-hover`, `table-light`
+- 카드: `card`, `card-body`, `shadow-sm`
+- 알림: `alert`, `alert-info`
+
+---
+
+## 🧩 API / View Controller 구조 분리
+
+- **View (Thymeleaf)**: `/posts/**`
+- **API (JSON)**: `/api/posts/**`
+
+### 분리 배경
+초기 구현 시 `/posts/{id}` 경로에서  
+API Controller와 View Controller 간 매핑 충돌이 발생했습니다.
+
+이를 해결하기 위해:
+- API 엔드포인트에 `/api` prefix를 적용
+- View 전용 Controller와 명확히 분리
+
+→ URL 충돌 문제 해결 및 역할 분리 명확화
+
+---
+
+## 🧪 E2E 테스트 (Playwright)
+
+### 테스트 목적
+- 단순 기능 확인이 아닌  
+  **사용자가 실제로 수행하는 핵심 화면 흐름 검증**
+
+### 테스트 시나리오
+1. 게시글 목록 페이지 접속 (`/posts`)
+2. 게시글 클릭
+3. 게시글 상세 페이지(`/posts/{id}`) 이동 확인
+4. 상세 화면 정상 렌더링 확인
+
+### 테스트 코드 위치
 ```text
-com.cmc.board
- ├─ auth
- ├─ user
- │   ├─ controller
- │   ├─ service
- │   ├─ domain
- │   └─ repository
- ├─ post
- │   ├─ controller
- │   ├─ controller.dto
- │   ├─ service
- │   ├─ domain
- │   └─ repository
- ├─ comment
- ├─ bookmark
- ├─ category
- └─ global
-     ├─ config
-     ├─ error
-     └─ common
+e2e/post.spec.js
 ```
-- 도메인 단위로 패키지를 분리하여 응집도를 높이고 Controller / Service / Repository 역할을 명확히 분리했습니다.
+실행 결과
 
-## 🗂 ERD 설계
+- 테스트 1건 실행
+- 실패 없이 통과 (1 passed)
 
-- DBML 기반으로 ERD 설계
-- 게시글 / 댓글 / 대댓글 / 북마크 / 카테고리 요구사항 반영
-
-### 📄 관련 문서
-
-- docs/erd.dbml
-- docs/erd.md
-
-## ✨ 주요 기능 (Step 3)
-
-- 게시글 생성 API
-- JPA 연관관계 기반 Entity 매핑
-- Service → Repository 계층 분리
-- Postman을 통한 API 동작 검증
-
-### 게시글 생성 API 예시
-```http
-POST /posts
-Content-Type: application/json
-```
-```json
-{
- "title": "첫 번째 게시글",
-  "content": "게시글 생성 테스트"
-}
-```
-
-## 🧪 테스트 (Step 4)
-
-### 단위 테스트
-- PostService 대상 유닛 테스트 작성
-- Given / When / Then BDD 스타일 적용
-
-- 테스트 실행
-./gradlew test
-
-- 테스트 커버리지
-JaCoCo를 통해 커버리지 리포트 생성
-
-- 📍 리포트 위치
-build/reports/jacoco/test/html/index.html
-
-테스트 실행 결과: 성공률 100%
-<img width="1072" height="530" alt="image" src="https://github.com/user-attachments/assets/79951dfd-fb2c-4544-abc6-7707fb9b66b3" />
-
-
-## 🔍 AI 코드리뷰 & 리팩토링 (Step 5)
-
-AI 코드리뷰를 통해 다음 관점에서 개선을 진행했습니다.
-
-- SOLID 원칙
-- 이펙티브 자바
-- 레이어드 아키텍처
-
-### 주요 개선 내용
-- Service의 책임을 "게시글 생성"으로 한정 (SRP 준수)
-- Controller에서 도메인 객체 생성 책임 축소
-- 도메인 엔티티가 생성 시간 책임을 직접 가지도록 개선
-- DTO 분리를 통한 역할 명확화
-
-📄 코드리뷰 정리 문서
-docs/review.md
-
-## 🏁 개발 프로세스 요약
-1. 요구사항 분석 및 패키지 구조 설계
-2. ERD 설계 (DBML)
-3. Spring Boot API 구현
-4. JUnit 기반 유닛 테스트 작성
-5. JaCoCo 테스트 커버리지 확인
-6. AI 코드리뷰 및 리팩토링
-
-## 📌 실행 방법
+## ▶ 실행 방법
+### 서버 실행
+```text
 ./gradlew bootRun
+```
+- 게시글 목록: http://localhost:8080/posts
+- 게시글 상세: http://localhost:8080/posts/1
+- 게시글 작성: http://localhost:8080/posts/new
 
+## ▶ E2E 테스트 실행 방법
+서버 실행 상태에서 테스트를 수행합니다.
+```text
+npm install -D @playwright/test
+npx playwright install
+npx playwright test
+```
 
-- 서버 주소: http://localhost:8080
-- H2 Console: http://localhost:8080/h2-console
+## 🤖 AI 도구 활용 방식
+- Thymeleaf SSR 구조 이해
+- Bootstrap 컴포넌트 적용 방향 정리
+- Playwright 테스트 코드의 의미를 한 줄씩 확인
+
+## 🏁 개발 흐름 요약
+
+1. Thymeleaf 기반 HTML 화면 구현
+2. Bootstrap CSS 프레임워크 적용
+3. API / View Controller 구조 분리
+4. Playwright 기반 E2E 테스트 작성
+5. 테스트 실행 및 사용자 흐름 검증
